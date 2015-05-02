@@ -29,9 +29,9 @@ def qsort(list):
 
 #############################################################
 
-n = 3
-J = 1
-h = -1
+n = 3 #number of electrons
+J = 1 # coupling constant in z direction
+h = -1 # coupling contant in x direction
 row = np.array(range(2**n))
 
 l = [bin(x)[2:].rjust(n, '0') for x in range(2**n)]
