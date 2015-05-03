@@ -31,7 +31,7 @@ def qsort(list):
 
 n = 3 #number of electrons
 J = 1 # coupling constant in z direction
-h = -1 # coupling contant in x direction
+h = 1 # coupling contant in x direction
 row = np.array(range(2**n))
 
 l = [bin(x)[2:].rjust(n, '0') for x in range(2**n)]
@@ -70,9 +70,9 @@ ppp = [0]*2**n
 for i in range(2**n):
 	data[i] = np.sum(q[i])
 	if data[i]!=0:
-		data[i] = J * (data[i])/(abs(q[i,0]))
+		data[i] = -J * (data[i])/(abs(q[i,0]))
 	if q[i,0] == 0:
-		data[i] = J * len(q[i])
+		data[i] = -J * len(q[i])
 	ppp[i] = abs(q[i,0])
 
 Diagonal = sparse.csr_matrix((data, (row,row)), shape=(2**n,2**n), dtype=float).toarray()
@@ -90,7 +90,7 @@ Off_Diagonal = sparse.csr_matrix((zeros, (row,row)), shape=(2**n,2**n), dtype=fl
 for i in range(2**n):
 	for j in range(n):
 		asd[i,j] = binary_search(Tsorted,calculateTag(np.bitwise_xor(d[i],qwertz[j])))
-		Off_Diagonal[i,asd[i,j]] = h
+		Off_Diagonal[i,asd[i,j]] = -h
 
 
 ##########################################################
