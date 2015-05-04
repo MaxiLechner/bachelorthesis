@@ -39,11 +39,6 @@ b = np.array([np.array(map(int, i)) for i in l])
 d = np.array([np.array(map(int, i)) for i in l])
 
 
-j = [bin(x)[2:].rjust(n, '0') for x in range(2**n)]
-for i in range(2**n):
-	j[i] = j[0][:n-1]
-q = np.array([np.array(map(int, i)) for i in j])
-
 ###########################################################
 '''Sort Tags'''
 T = []
@@ -57,26 +52,17 @@ Tsorted = np.asarray(qsort(T))
 data = [-J*(n-1.)]
 rowcol = [0]
 abc = np.zeros((n-1), dtype=np.double)
-abd = [0]*(n-1)
-print abc
-print abd
+
 for i in range(2**n):
 	for j in reversed(range(n-1)):
 		if b[i,j]==b[i,j+1]:
-			#q[i,j] = binary_search(Tsorted,calculateTag(b[i]))
 			abc[j] = binary_search(Tsorted,calculateTag(b[i]))
 		else:
-			#q[i,j] = -binary_search(Tsorted,calculateTag(b[i]))	
 			abc[j] = -binary_search(Tsorted,calculateTag(b[i]))
 	if np.sum(abc)!=0:
-	#if np.sum(q[i])!=0:
 		rowcol.append(i)
-	#	data.append(-J * (np.sum(q[i]))/(abs(q[i,0])))
 		data.append(-J * (np.sum(abc))/(abs(abc[0])))
 
-print q
-print rowcol
-print data
 Diagonal = sparse.csr_matrix((data,(rowcol,rowcol)), dtype=float).toarray()
 
 ##########################################################
