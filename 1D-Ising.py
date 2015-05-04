@@ -29,7 +29,7 @@ def qsort(list):
 
 #############################################################
 
-n = 4 #number of electrons
+n = 3 #number of electrons
 J = 1 # coupling constant in z direction
 h = 1 # coupling contant in x direction
 row = np.array(range(2**n))
@@ -37,8 +37,10 @@ row = np.array(range(2**n))
 l = [bin(x)[2:].rjust(n, '0') for x in range(2**n)]
 b = np.array([np.array(map(int, i)) for i in l])
 d = np.array([np.array(map(int, i)) for i in l])
-
-
+onlyone1 = []
+for i in range(n):
+	onlyone1.append(b[2**i])
+onlyone1 = np.asarray(onlyone1)
 ###########################################################
 '''Sort Tags'''
 T = []
@@ -48,12 +50,17 @@ for i in range(2**n):
 Tsorted = np.asarray(qsort(T))
 
 ###########################################################
-'''H_diag'''
 data = [-J*(n-1.)]
 rowcol = [0]
 abc = np.zeros((n-1), dtype=np.double)
 
+off_row = []
+off_col = []
+off_data = []
+
+
 for i in range(2**n):
+	'''Diagonal'''
 	for j in reversed(range(n-1)):
 		if b[i,j]==b[i,j+1]:
 			abc[j] = binary_search(Tsorted,calculateTag(b[i]))
@@ -62,29 +69,14 @@ for i in range(2**n):
 	if np.sum(abc)!=0:
 		rowcol.append(i)
 		data.append(-J * (np.sum(abc))/(abs(abc[0])))
-
-Diagonal = sparse.csr_matrix((data,(rowcol,rowcol)), dtype=float).toarray()
-
-##########################################################
-'''Off Diagonal'''
-
-qwerty = [bin(2**x)[2:].rjust(n, '0') for x in range(n)]
-qwertz = np.array([np.array(map(int, i)) for i in qwerty])
-
-asd = np.zeros((2**n,n), dtype=np.double)
-zeros = [0]*2**n
-Off_Diagonal = sparse.csr_matrix((zeros, (row,row)), shape=(2**n,2**n), dtype=float).toarray()
-#print Off_Diagonal
-col = []
-off_diag_data = []
-
-for i in range(2**n):
+	'''Off Diagonal'''		
 	for j in range(n):
-		asd[i,j] = binary_search(Tsorted,calculateTag(np.bitwise_xor(d[i],qwertz[j])))
-		Off_Diagonal[i,asd[i,j]] = -h
-		#print asd[i,j]
-#print row
+		off_col.append(binary_search(Tsorted,calculateTag(np.bitwise_xor(d[i],onlyone1[j]))))
+		off_row.append(i)
+		off_data.append(-h)
 
+Diagonal = sparse.csr_matrix((data,(rowcol,rowcol)), dtype=np.double).toarray()
+Off_Diagonal = sparse.csr_matrix((off_data, (off_row,off_col)), dtype=np.double).toarray()
 ##########################################################
 '''Diagonalize Full Hamiltonian'''
 
