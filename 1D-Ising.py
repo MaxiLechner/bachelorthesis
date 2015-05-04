@@ -29,7 +29,7 @@ def qsort(list):
 
 #############################################################
 def ED(n):
-	#n: number of electrons
+	#n: number of sites
 	J = 1 #coupling for sum_{<ij>}s^z_i s^z_j
 	h = 1 #coupling for sum_{i}s^x_i
 	row = np.array(range(2**n))
