@@ -82,7 +82,7 @@ def ED(n):
 
 	Ham = Diagonal + Off_Diagonal
 	print Ham
-	vals, vecs = arp.eigsh(Ham, k=2, which='SA')
+	vals, vecs = arp.eigsh(Ham, k=1, which='SA')
 	print vals
 if __name__ == "__main__":
 	ED(4)
