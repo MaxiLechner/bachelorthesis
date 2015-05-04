@@ -29,7 +29,7 @@ def qsort(list):
 
 #############################################################
 
-n = 3 #number of electrons
+n = 4 #number of electrons
 J = 1 # coupling constant in z direction
 h = 1 # coupling contant in x direction
 row = np.array(range(2**n))
@@ -54,28 +54,30 @@ Tsorted = np.asarray(qsort(T))
 
 ###########################################################
 '''H_diag'''
-
-
+data = [-J*(n-1.)]
+rowcol = [0]
+abc = np.zeros((n-1), dtype=np.double)
+abd = [0]*(n-1)
+print abc
+print abd
 for i in range(2**n):
 	for j in reversed(range(n-1)):
 		if b[i,j]==b[i,j+1]:
-			q[i,j] = binary_search(Tsorted,calculateTag(b[i]))
+			#q[i,j] = binary_search(Tsorted,calculateTag(b[i]))
+			abc[j] = binary_search(Tsorted,calculateTag(b[i]))
 		else:
-			q[i,j] = -binary_search(Tsorted,calculateTag(b[i]))		
+			#q[i,j] = -binary_search(Tsorted,calculateTag(b[i]))	
+			abc[j] = -binary_search(Tsorted,calculateTag(b[i]))
+	if np.sum(abc)!=0:
+	#if np.sum(q[i])!=0:
+		rowcol.append(i)
+	#	data.append(-J * (np.sum(q[i]))/(abs(q[i,0])))
+		data.append(-J * (np.sum(abc))/(abs(abc[0])))
 
-
-data = [0]*2**n
-ppp = [0]*2**n
-
-for i in range(2**n):
-	data[i] = np.sum(q[i])
-	if data[i]!=0:
-		data[i] = -J * (data[i])/(abs(q[i,0]))
-	if q[i,0] == 0:
-		data[i] = -J * len(q[i])
-	ppp[i] = abs(q[i,0])
-
-Diagonal = sparse.csr_matrix((data, (row,row)), shape=(2**n,2**n), dtype=float).toarray()
+print q
+print rowcol
+print data
+Diagonal = sparse.csr_matrix((data,(rowcol,rowcol)), dtype=float).toarray()
 
 ##########################################################
 '''Off Diagonal'''
@@ -86,15 +88,19 @@ qwertz = np.array([np.array(map(int, i)) for i in qwerty])
 asd = np.zeros((2**n,n), dtype=np.double)
 zeros = [0]*2**n
 Off_Diagonal = sparse.csr_matrix((zeros, (row,row)), shape=(2**n,2**n), dtype=float).toarray()
+#print Off_Diagonal
+col = []
+off_diag_data = []
 
 for i in range(2**n):
 	for j in range(n):
 		asd[i,j] = binary_search(Tsorted,calculateTag(np.bitwise_xor(d[i],qwertz[j])))
 		Off_Diagonal[i,asd[i,j]] = -h
-
+		#print asd[i,j]
+#print row
 
 ##########################################################
-''' Diagonalize Full Hamiltonian'''
+'''Diagonalize Full Hamiltonian'''
 
 Ham = Diagonal + Off_Diagonal
 print Ham
