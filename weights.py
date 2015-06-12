@@ -1,7 +1,15 @@
 from clusters import *
 from ED import *
 import numpy as np
+import string as string
 
+def traverse(item):
+    try:
+        for i in iter(item):
+            for j in traverse(i):
+                yield j
+    except TypeError:
+        yield item
 
 def cluster(n,m):
 	y = [[i,j] for i in range(n) for j in range(m)]
@@ -23,9 +31,13 @@ def cluster(n,m):
 	return y
 
 def subclusters(a,b):
+	m = a
+	n = b
 	l = cluster(a,b)
 	if len(l)==1:
-		return 0
+		#return "P(%d,%d)"%(1,1)
+		return "W(%d,%d)=P(%d,%d)"%(1,1,1,1)
+		#return (1,1)
 	else:
 		b = [[(l[-1][0]-(i[0]-1))*(l[-1][1]-(i[1]-1)), i] for i in l[:-1]]
 		b = list(reversed(b))
@@ -33,38 +45,65 @@ def subclusters(a,b):
 		#for i in b:
 		#	list_of_lists.append(i[0]*[i[1]])
 		#flattened = [val for sublist in list_of_lists for val in sublist]
-		
 		#return flattened
-		return b
+		
 
-a = cluster(2,2)
+		prop = "W(%d,%d)=P(%d,%d)"%(m,n,m,n)
+		#prop = "P(%d,%d)"%(m,n)
+		for i in b:
+			#print i[0],'+',i[1]
+			prop += "%+d*W(%d,%d)"%(-i[0],i[1][0],i[1][1])
+		return prop
+		#return b
 
+#split W(1,1) = P(1,1) in two lists
+
+a = []
+for i in cluster(2,2):
+	a.append(str(subclusters(i[0],i[1])))
+a1 = [] 
+a2 = []
+for i in a:
+	a1.append(i[:6])
+	a2.append(i[7:])
+for i in a:
+	print i
+
+for i in reversed(range(len(a2)-1)):
+	a2[i+1] = '('+a2[i+1]+')'
+
+
+for j in reversed(range(len(a2))):
+	for i in reversed(range(len(a2))):
+		a2[j] = a2[j].replace(a1[i],a2[i])
+
+for i in a2:
+	print i
+
+e = ""
+for i in a2:
+	e += i
+	e += '+'
+e = e[:len(e)-1]
+#print e
+'''
+f = open('aaaaaaaa','w')
+for i in a:
+	f.write(i)
+	f.write('\n')
+f.close()
+
+search in dictionary
+'''
+
+'''
 b = []
 for i in range(len(a)):
 	if a[i][0]==a[i][1]:
 		b.append([a[i],1])
 	else:
 		b.append([a[i],1])
-
-for i in b:
-	print i
-for i in cluster(1,3):
-	print i, ':', subclusters(i[0],i[1])
-
-for i in subclusters(1,3):
-	print i,':', i[0], subclusters(i[1][0],i[1][1])
-
-
 '''
 
-graph = cluster(k,l)
 
-o = [str(i) for i in range(len(graph))]
 
-#print map(tuple,graph)
-
-howoften = [i[0] for i in subclusters(k,l)]
-sub = [i[1] for i in subclusters(k,l)]
-
-dic = {str(i):sub[i] for i in range(len(sub))}
-'''
