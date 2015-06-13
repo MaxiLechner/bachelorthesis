@@ -1,7 +1,9 @@
 from clusters import *
 from ED import *
 import numpy as np
-import string as string
+#from sympy import *
+from sympy.parsing.sympy_parser import parse_expr
+from sympy import *
 
 def traverse(item):
     try:
@@ -59,51 +61,44 @@ def subclusters(a,b):
 #split W(1,1) = P(1,1) in two lists
 
 a = []
-for i in cluster(2,2):
+for i in cluster(10,10):
 	a.append(str(subclusters(i[0],i[1])))
 a1 = [] 
 a2 = []
+for pair in a:
+    x,y = pair.split("=")
+    a1.append(x)
+    a2.append(y)
+'''
 for i in a:
 	a1.append(i[:6])
 	a2.append(i[7:])
-for i in a:
-	print i
-
+'''
 for i in reversed(range(len(a2)-1)):
 	a2[i+1] = '('+a2[i+1]+')'
-
 
 for j in reversed(range(len(a2))):
 	for i in reversed(range(len(a2))):
 		a2[j] = a2[j].replace(a1[i],a2[i])
-
-for i in a2:
-	print i
 
 e = ""
 for i in a2:
 	e += i
 	e += '+'
 e = e[:len(e)-1]
-#print e
+print e
+	#parse_expr(i, evaluate=False)
+#print parse_expr(e)
+print simplify(e)
 '''
 f = open('aaaaaaaa','w')
-for i in a:
+for i in a2:
 	f.write(i)
 	f.write('\n')
+f.write(e)
 f.close()
-
-search in dictionary
 '''
 
-'''
-b = []
-for i in range(len(a)):
-	if a[i][0]==a[i][1]:
-		b.append([a[i],1])
-	else:
-		b.append([a[i],1])
-'''
 
 
 
