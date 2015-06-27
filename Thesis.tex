@@ -1,0 +1,305 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{braket}
+\usepackage{amssymb}
+
+\begin{document}
+TFIM
+\section{Exact Diagonalization}
+We want to solve the Schr\"odinger Equation.
+\begin{equation}
+\label{eq:1}
+\mathcal{H} \ket{\psi} = E \ket{\psi}
+\end{equation}
+From which we can calculate expectation values via the relation:
+\begin{equation}
+\label{eq:2}
+\braket{A} = \frac{Tr(Ae^{-\beta \mathcal H})}{Tr(e^{-\beta \mathcal H})} = \frac{\sum\limits_i \braket{\psi_i|A_ie^{-\beta E_{i}}|\psi_{i}}}{\sum\limits_i \braket{\psi_i|e^{-\beta E_i}|\psi_{i}}}
+\end{equation}
+Here E$_{i}$, $\ket{\psi_i}$ are the Eigenvalues and  Eigenvectors of the Hamiltonian $\mathcal{H}$, respectively.\\
+There exist many ways to calculate the partition sum, the conceptually simplest way is to simply diagonalize the hamiltonian\\
+Most of the time it is not possible to solve the Schr\"odinger Equation analytically, therefore one has to resort to numerical approaches.\\
+Exact Diagonalization = finding eigenvalues and eigenvectors numerically.\\
+no assumptions, approximations besides finite arithmatic, thus unbiased\\
+basic idea: set ham up in some basis , then find eigvals\\
+But: dim(H) scales exponentially!!! ($2^{N}\times 2^N$ for Ising Model)\\
+2$^{300}$ > than number of particles in universe\\
+either full diagonalization or extremal eigenvalues/vectors ( much simpler)\\
+full diag of hermitian matrix: O(D$^3$) time and O(D$^2$) memory\\
+extremal: much higher dimension possible => lanzcos type eigenvalue solver in this paper.
+
+\subsection{Basis Construction}
+The hamiltonian is in operator form, in order to diagonalize it one has to convert it to matrix form.In principle one can use any basis, for the spin 1/2 systems like the Ising model it is most convenient to work in a binary basis.\\
+We use the identification $\ket{\uparrow} = \ket{1}$ and $\ket{\downarrow} = \ket{0}$. One can then write a many-body state in the following form: $\ket{\uparrow \uparrow \dotso \downarrow} = \ket{11 \dotso 0}$. In this thesis, the states are numbered from the right side and we count from zero upwards, that is the rightmost state is the zeroth spin.\\
+In order to set up the matrix one has to generate a complete basis, e.g. one has to create all 2$^{N}$ combinations of $\uparrow$ and $\downarrow$ spins.\\
+For $N=2$ sites this corresponds to:
+\begin{align*}
+&\ket{\downarrow \downarrow} = \ket{00}\\
+&\ket{\downarrow \uparrow} = \ket{01}\\
+&\ket{\uparrow \downarrow} = \ket{10}\\
+&\ket{\uparrow \uparrow} = \ket{11}\\
+\end{align*}
+Furthermore it is necessary to determine the action of the Hamiltonian on the basis states.\\
+The Ising Hamiltonian consists of two different parts $H = H_z + H_x$.
+\begin{align}
+\label{eq:5}
+H_z &= -J \sum\limits_{i}\sigma_i^z\sigma_{i+1}^z\\
+H_x &= -h \sum\limits_i^{}\sigma_i^{x}
+\end{align}
+Where $\sigma_i$ is a Pauli spin operator, whose action on the basis states is defined as follows:
+\begin{align*}
+\sigma^z \ket{\uparrow} &= 
+\begin{pmatrix}
+1 & 0\\
+0 & -1
+\end{pmatrix}
+\begin{pmatrix}
+1\\
+0
+\end{pmatrix} = 
+\begin{pmatrix}
+1\\
+0
+\end{pmatrix} = \ket{\uparrow}
+\\
+\sigma^z \ket{\downarrow} &= 
+\begin{pmatrix}
+1 & 0\\
+0 & -1
+\end{pmatrix}
+\begin{pmatrix}
+0\\
+1
+\end{pmatrix} = -
+\begin{pmatrix}
+0\\
+1
+\end{pmatrix} = -\ket{\downarrow}
+\\
+\sigma^x \ket{\uparrow} &= 
+\begin{pmatrix}
+0 & 1\\
+1 & 0
+\end{pmatrix}
+\begin{pmatrix}
+1\\
+0
+\end{pmatrix} = 
+\begin{pmatrix}
+0\\
+1
+\end{pmatrix} = \ket{\downarrow}
+\\
+\sigma^x \ket{\downarrow} &= 
+\begin{pmatrix}
+0 & 1\\
+1 & 0
+\end{pmatrix}
+\begin{pmatrix}
+0\\
+1
+\end{pmatrix} =
+\begin{pmatrix}
+1\\
+0
+\end{pmatrix} = \ket{\uparrow}
+\end{align*}
+That generalizes straightforwardly to the many-body basis: $\sigma_i^z \ket{\dotso \uparrow_i \downarrow_{i+1} \dotso} =\ket{\dotso \uparrow_i \downarrow_{i+1}\dotso} $ Then H is applied to every basis state, in order to set up the matrix.\\The resulting matrix is sparse, that is it contains mostly zeros and we can save a lot of memory by only saving the nonzero elements.\\
+As one can see, applying H$_z$ to a basis state always yields the same state, thus H$_z$ is diagonal in this basis.\\
+For the 3 site chain, H$_z$ acts the following way on a state:
+\begin{align*}
+H_z \ket{\uparrow \downarrow \uparrow} = -J(\sigma_0\sigma_1 + \sigma_1\sigma_2) \ket{\uparrow \downarrow \uparrow} = -J(-\ket{\uparrow \downarrow \uparrow} - \ket{\uparrow \downarrow \uparrow}) = 2J \ket{\uparrow \downarrow \uparrow}
+\end{align*}
+As one can see, one gets a + sign if two neighboring spins point in the same direction and a minus sign if they do not. Then one has to simply count the number of + and the number of - signs and subtract them.
+If the application of H$_z$ returns a nonzero state, we store it in a list, together with its multiple.\\
+The application of H$_x$ is not quite as simple. $\sigma_i^x$ flips the i'th spin, this can be accomplished with the exclusive or.
+\begin{align*}
+\sigma_0^x \ket{101} = \ket{001} XOR \ket{101} = \ket{100}
+\end{align*}
+To give an example:
+\begin{align*}
+H_x \ket{001} &= -h(\sigma_0 + \sigma_1 + \sigma_2)\ket{001} \\
+&= -h(\ket{001}XOR \ket{001} + \ket{010}XOR \ket{001} + \ket{100}XOR \ket{001})\\
+&= -h(\ket{000} +\ket{011} +\ket{101}) = -h(\ket{0} + \ket{3} +\ket{5})
+\end{align*}
+In the last step we have converted the binary number into its integer representation, in order to find out which state was returned.\\
+Besides the integer representation, one can also use hash tables, binary search or look up tables. Which of those methods is best depends on the model and its symmtries.\\
+Like before, we only save the position of the nonzero elements.Unlike H$_Z$, H$_{x}$ is not diagonal, therefore we need to save both the column index, as well as the row index.\\
+We take the column index to be the state H was applied to and as row index the resulting states. Furthermore one has to store the value of h.\\
+Finally one has to to combine both matricies, which can then be diagonalized.
+\subsection{Lanczos}
+In order to find the eigenvalues of a N-dimensional Hamiltonian, one
+has to find the roots to the characteristic polynomial of degree
+N.Closed form solutions only exist for N$\leq4$ and for higher degrees
+finding the roots is quite tricky.\\
+Instead, one should find a unitary transformation that diagonalizes
+the Hamiltonian:
+\begin{align*}
+H \to U^{\dagger} H U
+\end{align*}
+This can be done in an iterative way,
+\begin{align*}
+H \to U_1^{\dagger} H U_1 \to U_2^{\dagger}U_1^{\dagger} H U_1U_2 \to \dotsm
+\end{align*}
+This method is limited by the fact, that the whole Hamiltonian matrix
+has to be stored and therefore the largest possible lattice size is
+quite small.\\
+If the ground state eigenvalue and eigenvector and low-lying excited
+states are sufficent, then powerful iterative diagonalization
+procedures, like the Lanczos Algorithm, exist.\\
+Those Algorithms are all examples of the conceptually quite simple
+power method,
+whereby one repeatedly applies the Hamiltonian to a random initial
+state $\ket{v_0}$, which then converges towards the eigenvector of the
+corresponding greatest absolute value eigenvalue.
+\begin{align*}
+\ket{v_{n+1}} &= \frac{H \ket{v_n}}{\| H \ket{v_n} \|} =\frac{H^{n+1} \ket{v_0}}{\| H^{n+1} \ket{v_0} \|}  \qquad r_0 \in \mathbb{C}\\
+\theta_n &= \frac{\braket{v_n|H|v_n}}{\braket{v_n|v_n}}
+\end{align*}
+Where $\theta_n$ converges towards the eigenvalue $\lambda_n$. The
+subspace generated in the power method
+ span\{$\ket{v},H \ket{v}, H^2 \ket{v}, \dotsc,H^n \ket{v}$\} 
+is called the n'th Krylov space and forms the basis for many other
+algorithms.\\
+Lanczos:\\
+The Lanczos algorithm brings the matrix in triadiagonal form.
+\begin{enumerate}
+\item\label{item:1} Like before we start with a random vector
+  $\ket{\phi_0}$, that is normalized, $\|\phi_0\| = 1$
+\item\label{item:2} apply H to this state
+\item\label{item:3} orthogonalize these states against each other to
+  obtain a basis of the Krylov space, the matrix is tridiagonal in this basis
+\item\label{item:4} go to 2 using the newly generated state, end the
+  recursion when the stoping criterion $\braket{\phi_{n+1}|\phi_{n+1}}
+  < \epsilon$ is fullfiled 
+
+\end{enumerate}
+We can combined these steps in the following recursion relation:
+
+\begin{align*}
+\ket{\phi'}&=H\ket{\phi} - \beta_n\ket{\phi_{n-1}}, \quad with \quad \ket{\phi_{-1}} = 0\\
+\alpha_n &= \bra{\phi_n} \ket{\phi'}\\
+\ket{\phi''} &= \ket{\phi'} - \alpha_n\ket{\phi_n}\\
+\beta_{n+1} &= \|\phi''\| = \sqrt{\braket{\phi''|\phi''}}\\
+\ket{\phi_{n+1}} &= \ket{\phi''}/\beta_{n+1}
+\end{align*}\\
+The resulting matrix T$_n$ has the form:\\
+\begin{equation*}
+T_n = 
+\begin{pmatrix}
+\alpha_0 & \beta_1 & 0 & &\\
+\beta_1 & \alpha_1 & \beta_2 & 0 &\\
+0 & \beta_2 & \alpha_2 & \ddots & \\
+ & 0 & \ddots & \ddots & \beta_{n-1}\\
+ & & & \beta_{n-1} & \alpha_{n-1}\\
+\end{pmatrix}
+\end{equation*}\\
+The eigenvalues of T$_n$ converge to the eigenvalues of H if n is
+large enough and typically 100 recursions are enough to come close to
+machine precision for the ground state. Therefore one has to
+diagonalize T$_n$,using for example the QR algorithm, which is much easier task than directly
+diagonalizing H.\\
+ghosts, reorthogonalize or Cullum Willoughby\\
+
+\section{Numerically Linked Cluster Expansion}
+The linked Cluster Expansion is a method of calculating extenisve properties of
+a system in the thermodynamic limit, by extrapolating
+from a series of finite size clusters, that can be embedded in the
+lattice.\\
+\subsection{High Temperature Expansion}
+
+Calculating thermal properties of lattice systems is in general a
+very difficult task. One possible way to do this, is to expand the
+partition function in some parameter. In the high temperature
+expansion this corresponds to the inverse temperature $\beta =
+1/k_BT$,we set the Boltzman constant k$_B$ to unity from now on.
+We demonstrate this for the Ising model:
+\begin{equation}
+\label{eq:10}
+\mathcal{H} = -J \sum\limits_{\langle i,j \rangle} \sigma_i \sigma_j
+\end{equation}
+where the sum runs over all nearest neighbors. Then the canonical
+partition function can be written as:
+\begin{align}
+\label{eq:11}
+\mathcal{Z} &= \sum\limits_{\{ \sigma \}} e^{-\beta \mathcal{H}} =
+\sum\limits_{\{ \sigma \}} e^{-K \sum_{\langle i,j \rangle}
+  \sigma_i \sigma_j}, \quad with \quad K = \beta J\\
+&= \sum\limits_{\{ \sigma \}} \prod\limits_{\left\langle i,j
+  \right\rangle} e^{-K \sigma_i \sigma_j} =  \sum\limits_{\{ \sigma \}} \prod\limits_{\left\langle i,j
+  \right\rangle} \sum\limits_{l = 0}^{\infty} \frac{K^l}{l!}(\sigma_i
+  \sigma_j )^l
+\end{align}
+We can now express $(\sigma_i \sigma_j)^l$
+
+
+\subsection{bla}
+The idea is to generate all possible clusters that can be embedded in
+the lattice, calculate the desired property of each cluster and then
+add them all up in such a way, that boundary and finite-size effects
+get cancelled out. This way
+\begin{equation}
+\label{eq:3}
+P(\mathcal{L})/N = \sum\limits_c L(c) \times W_P(c)
+\end{equation}
+The extensive property P(c) can be expressed by all contributions of
+clusters that can be embedded in the cluster c.\\
+see khatami\\
+\begin{equation}
+\label{eq:9}
+P(c) = W_P(c) + \sum\limits_{s \subset c} W_P(s)
+\end{equation}
+Which we can rewrite as:
+\begin{equation}
+\label{eq:4}
+W_P(c) = P(c) - \sum\limits_{s \subset c} W_P(s)
+\end{equation}
+In the sum, each subcluster s is included the number of times it can
+fit inside the cluster c.\\
+A particularly nice fact about the LCE is the sum converges for
+different cluster geometries, as long as the subclusters can be
+described in the same way. Thus one can choose the
+building blocks that best fit the model one tries to solve. Possible building blocks for the square
+lattice include the site,bond, square or n
+$\times$ m rectangles based expansion and site, bond, or triangle
+based expansion for the triangular lattice.\\
+Pictures\\
+\begin{equation}
+\label{eq:6}
+P(c) = \frac{Tr \left(\hat P(c) e^{-\beta \hat H_c} \right)}{Tr
+  \left(e^{-\beta \hat H_c} \right)}
+\end{equation}
+\subsection{disconnected clusters}
+The weight of two disconnected clusters is zero, which can be considered as a generalization of the
+inclusion-exclusion principle, that states that $|A \cup B|$ is $|A|
++ |B| - |A \cap B|$, just as the number of elements in
+the intersection of two disconnected sets is zero.\\
+citations\\
+More explicitly, an extensive quantity P(c) can be written by the sum of its terms:
+\begin{equation}
+\label{eq:7}
+P(c) = P(c_1) + P(c_2)
+\end{equation}
+But c$_1$, c$_2$ and their respective subclusters are both
+subclusters of c, thus the weight of two disconnected clusters is zero.
+\begin{align}
+\label{eq:8}
+W_P(c) &= P(c) - \sum\limits_{s \subset c} W_P(s)\\
+&= P(c) - \left[ W_P(c_1) + \sum\limits_{s \subset c_1} W_P(s)
+  \right]\\
+&= P(c) - \left[ W_P(c_2) + \sum\limits_{s \subset c_2} W_P(s)
+  \right]\\
+&= P(c) - P(c_1) -P(c_2) = 0
+\end{align}
+
+
+
+\section{Analysis}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
