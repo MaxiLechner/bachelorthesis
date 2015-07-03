@@ -25,21 +25,36 @@ def mag(n):
 		c.append([a,j])
 	return c
 
-def asd(n):
+def oneD(n):
 	a = mag(n)
 	b = mag(n-1)
 	c = []
 	for i in range(len(a)):
 		c.append([(a[i][0]-b[i][0])*n,a[i][0],a[i][1]])
 	return c
+
+def twoD(n,m):
+	a = mag(n*m)
+	b = mag(n*(m-1))
+	c = mag((n-1)*m)
+	d = mag((n-1)*(m-1))
+	e = []
+	#for i in range(len(a)):
+	#	print a[i][0],'-', b[i][0],'-', c[i][0],'+', d[i][0],'=', a[i][0] -b[i][0] -c[i][0] +d[i][0],'h =', a[i][1]
+	for i in range(len(a)):
+		e.append([(a[i][0]-b[i][0]-c[i][0]+d[i][0])*(n*m),a[i][1]])
+	return e
+
 if __name__ == "__main__":
 	mag(2)
-	asd(2)
-#c = []
-#print (mag(5)-mag(4))*5
-#for i in asd(6):
-#	print i
+	oneD(2)
+	twoD(2,2)
 
-#with open("mag_nlce_ed.csv", "wb") as f:
+for i in mag(3):
+	print i
+for i in twoD(2,2):
+	print i
+
+#with open("mag_nlce_ed_12.csv", "wb") as f:
  #   writer = csv.writer(f)
-  #  writer.writerows(asd(10))
+  #  writer.writerows()

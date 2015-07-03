@@ -41,7 +41,7 @@ def ED(n,h):
 	for i in range(n):
 		onlyone1.append(b[2**i])
 	onlyone1 = np.asarray(onlyone1)
-
+	#print b
 	###########################################################
 	'''Sort Tags'''
 	T = []
@@ -74,21 +74,25 @@ def ED(n,h):
 		for j in reversed(range(n-1)):
 			if b[i,j]==b[i,j+1]:
 				abc[j] = Tindex[binary_search(Tsorted,calculateTag(b[i]))]
-				#abc[j] = binary_search(Tsorted,calculateTag(b[i]))
+				
+				#print Tindex[binary_search(Tsorted,calculateTag(b[i]))], '################'
+				
 			else:
 				abc[j] = -Tindex[binary_search(Tsorted,calculateTag(b[i]))]
-				#abc[j] = -binary_search(Tsorted,calculateTag(b[i]))
+				
+				#print -Tindex[binary_search(Tsorted,calculateTag(b[i]))], '***************'
+		
 		if np.sum(abc)!=0:
 			rowcol.append(i)
 			data.append(-J * (np.sum(abc))/(abs(abc[0])))
 		'''Off Diagonal'''		
 		for j in range(n):
 			off_col.append(Tindex[binary_search(Tsorted,calculateTag(np.bitwise_xor(d[i],onlyone1[j])))])
-		#	print d[i], onlyone1[j], np.bitwise_xor(d[i],onlyone1[j]), 'Tag:',calculateTag(np.bitwise_xor(d[i],onlyone1[j])), 'search:', Tindex[binary_search(Tsorted,calculateTag(np.bitwise_xor(d[i],onlyone1[j])))]
-			#print binary_search(Tsorted,calculateTag(np.bitwise_xor(d[i],onlyone1[j])))
+			
+			#print d[i], onlyone1[j], np.bitwise_xor(d[i],onlyone1[j]), 'index:', Tindex[binary_search(Tsorted,calculateTag(np.bitwise_xor(d[i],onlyone1[j])))]
+			
 			off_row.append(i)
 			off_data.append(-h)
-		#print '#######'
 
 	Diagonal = sparse.csr_matrix((data,(rowcol,rowcol)), dtype=np.double).toarray()
 	Off_Diagonal = sparse.csr_matrix((off_data, (off_row,off_col)), dtype=np.double).toarray()
@@ -97,36 +101,13 @@ def ED(n,h):
 	'''Diagonalize Full Hamiltonian'''
 
 	Ham = Diagonal + Off_Diagonal
+	
 	#print Ham
+	
 	vals, vecs = arp.eigsh(Ham, k=1, which='SA')
-	return vals[0]#,vecs
+	return vals[0],vecs
 #sigmaz = np.matrix([[1,0],[0,-1]])
 if __name__ == "__main__":
-	ED(3,1.5)
-'''
-myList = [1, 2, 3, 100, 5]
-asdasd = [[i[0],i[1]] for i in sorted(enumerate(myList), key=lambda x:x[1])]
-asdasd1 = []
-asdasd2 = []
-for i in range(len(asdasd)):
-	print asdasd[i], myList[i]
-	asdasd1.append(asdasd[i][0])
-	asdasd2.append(asdasd[i][1])
+	ED(2,0)
 
-print asdasd
-print binary_search(asdasd2,100)
 
-return asdasd1[4]
-'''
-'''
-print ED(2,1.5)[0]
-print ED(2,1.5)[1]
-ase = np.array(ED(2,1.5)[1])
-for i in range(len(ase)):
-	ase[i] = -ase[i]
-print ED(2,1.5)[1][0], ED(2,1.5)[1][1]
-print sigmaz*ED(2,1.5)[1][:2]# + ED(2,1.5)[1][2:]
-asd = np.array([-0.57363485,0.41345261,-0.41345261,-0.57363485])+np.array([-0.57363485,-0.41345261,-0.41345261,0.57363485])
-print ase
-print np.dot(asd,ase)
-'''

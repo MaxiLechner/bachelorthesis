@@ -61,7 +61,7 @@ def subclusters(a,b):
 #split W(1,1) = P(1,1) in two lists
 
 a = []
-for i in cluster(10,10):
+for i in cluster(2,2):
 	a.append(str(subclusters(i[0],i[1])))
 a1 = [] 
 a2 = []
@@ -86,10 +86,15 @@ for i in a2:
 	e += i
 	e += '+'
 e = e[:len(e)-1]
-print e
-	#parse_expr(i, evaluate=False)
-#print parse_expr(e)
+
+for i in a:
+	print i
+print '##################'
+for i in range(len(a1)):
+	print a1[i], '=' ,a2[i]
+print '##################'
 print simplify(e)
+
 '''
 f = open('aaaaaaaa','w')
 for i in a2:
