@@ -91,7 +91,7 @@ def ED_2D(n,m,h):
 		data2.append(-J*v2)
 		
 		'''Off Diagonal'''		
-		for j in range(n):
+		for j in range(n*m):
 				off_col.append(Tindex[binary_search(Tsorted,calculateTag(np.bitwise_xor(d[i],onlyone1[j])))])
 				
 				#print d[i], onlyone1[j], np.bitwise_xor(d[i],onlyone1[j]), 'index:', Tindex[binary_search(Tsorted,calculateTag(np.bitwise_xor(d[i],onlyone1[j])))]
@@ -121,4 +121,4 @@ def ED_2D(n,m,h):
 
 if __name__ == "__main__":
 	ED_2D(2,2,1)
-print ED_2D(2,2,1)
+#print ED_2D(2,2,1)
