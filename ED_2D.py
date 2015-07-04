@@ -73,6 +73,8 @@ def ED_2D(n,m,h):
 	
 	for i in range(2**(n*m)):
 		'''Diagonal'''
+
+		'''horizontal bonds'''
 		v1 = 0
 		v2 = 0
 		for j in range(n):
@@ -83,6 +85,7 @@ def ED_2D(n,m,h):
 					v1 -=1
 		data1.append(-J*v1)
 
+		'''vertical bonds'''
 		for j in range((n-1)*m):
 			if b[i,j] == b[i,j+m]:
 				v2 += 1
