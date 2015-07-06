@@ -10,18 +10,18 @@
 \begin{document}
 \tableofcontents
 
-\begin{tikzpicture}
+%\begin{tikzpicture}
     %\clip (-1,-1) rectangle (3cm,2cm); 
-    \draw[very thick] (0,0) grid[step=1cm] (3,2);
+  %  \draw[very thick] (0,0) grid[step=1cm] (3,2);
 
-    \foreach \x in {0,1,2,3}
-   {
-        \foreach \y in {0,1,2}
-        {
-            \node[draw,circle,inner sep=3pt,fill] at (1*\x,1*\y) {};
-        }\\
-    }
-\end{tikzpicture}
+    %\foreach \x in {0,1,2,3}
+   %{
+     %   \foreach \y in {0,1,2}
+       % {
+         %   \node[draw,circle,inner sep=3pt,fill] at (1*\x,1*\y) {};
+        %}\\
+    %}
+%\end{tikzpicture}
 
 \section{Introduction}
 asd
@@ -49,8 +49,8 @@ the familiar Pauli matrices $\sigma^x$ and $\sigma^z$.
 \mathcal{H}_0 &= -J \sum\limits_{\langle i,j \rangle} \sigma_i^z \sigma_j ^z\\
 \mathcal{H}_1 &= - h \sum\limits_i \sigma_i^x
 \end{align}
-Where the first sum runs over all pairs of adjacent spins. If the
-system has open boundary conditions and consist of N spins, then
+Where the first sum runs over all pairs of nearest neighbors. If the
+system has open boundary conditions, as is the case for this thesis and consists of N spins, then
 \eqref{eq:14} simplifies to:
 \begin{equation}
 \label{eq:19}
@@ -79,29 +79,33 @@ Thermal expectation values can then be calculate using, e.g. the
 canoncial ensemble, but other ensemble are, of course, also possible:
 \begin{equation}
 \label{eq:2}
-\braket{A} = \frac{Tr(Ae^{-\beta \mathcal H})}{Tr(e^{-\beta \mathcal
+\braket{A} = \frac{ \text{Tr}(Ae^{-\beta \mathcal H})}{ \text{Tr}(e^{-\beta \mathcal
     H})} = \frac{\sum\limits_i e^{-\beta
       E_{i}} \braket{\psi_i|A|\psi_{i}}}{\sum\limits_i e^{-\beta
       E_i} \braket{\psi_i|\psi_{i}}} = \frac{\sum\limits_i A_i e^{-\beta
       E_{i}}}{\sum\limits_i e^{-\beta
       E_i}}
 \end{equation}
-Here E$_{i}$, $\ket{\psi_i}$ are the Eigenvalues and  Eigenvectors of the Hamiltonian $\mathcal{H}$, respectively.\\
-The trace simplifies to the sum of all diagonal elements after
-$\mathcal{H}$ and A have been diagonalized. There, of course, exist other methods
-of calculating partition sums, e.g. monte carlo based methods but they
+Here E$_{i}$, $\ket{\psi_i}$ are the eigenvalues and  eigenvectors of
+the Hamiltonian $\mathcal{H}$, respectively and $A_i$ are the
+eigenvalues of the operator $A$.If $A$ is diagonal in the same basis as
+the hamiltonian, then one only has to diagonalize the hamiltonian and
+perform the sum, but $A$ does not have to be diagonal, thus one must
+diagonalize $A$ in the same basis as $\mathcal{H}$.\\
+There, of course, exist other methods
+of calculating partition functions, e.g. monte carlo based methods but they
 are conceptually not as simple.\\
 \\
-Exact diagonalization is an unbiased method of calculating properties,
+Exact diagonalization is an exact method of calculating properties,
 because no further simplifying assumptions are made after the
 hamiltonian has been derived.\\
 The downside of exact diagonalization is that $\mathcal{H}$ grows
 exponentially with the number of sites, e.g. for the TFIM
 $\mathcal{H}$ is $2^N \times 2^N$ dimensional, where N is the number
-of lattice sites. 2$^{300}$ is already greater than the number of all particles in the universe, therefore one is limited to very
-few particles up to roughly 40 on a 2D lattice \cite{Noack}.\\
+of lattice sites. In practice one is limited to very
+few particles, up to roughly 40 on a 2D lattice \cite{Noack}.\\
 Such large system sizes can only be achieved by making use of the
-symmetries of the Hamiltonian,whereby the Hamiltonian is blockdiagonal
+symmetries of the Hamiltonian, whereby the Hamiltonian is blockdiagonal
 (and thus smaller)
 under the action of its symmetry group. This theorem is due to Wigner
 and Eckart. The TFIM does not
@@ -116,14 +120,15 @@ then diagonalize it using a computer. If one is only interested in
 extremal eigenvalues and eigenvectors, like the ground state, then one
 does not have to diagonalize the whole matrix, but one can then find
 them using an iterative diagonalization procedure like the Lanczos
-algorithm, which is a lot faster and allows one to treat much larger
+algorithm \cite{Lanczos}, which is a lot faster and allows one to treat much larger
 systems. In this thesis a lanczos based eigenvalue solver is used.\\
 
 \subsection{Basis Construction}
+\subsubsection{1D Model}
 The hamiltonian is in operator form, in order to diagonalize it one
-has to convert it to matrix form.In principle one can use any basis,
+has to convert it to matrix form. In principle one can use any basis,
 for the spin 1/2 systems like the Ising model it is most convenient to
-work in a binary basis \cite{Noack,Laflorencie}.\\
+work in the $\sigma^z$ basis \cite{Noack,Laflorencie}.\\
 We use the identification $\ket{\uparrow} = \ket{1}$ and $\ket{\downarrow} = \ket{0}$. One can then write a many-body state in the following form: $\ket{\uparrow \uparrow \dotso \downarrow} = \ket{11 \dotso 0}$. In this thesis, the states are numbered from the right side and we count from zero upwards, that is the rightmost state is the zeroth spin.\\
 In order to set up the matrix one has to generate a complete basis, e.g. one has to create all 2$^{N}$ combinations of $\uparrow$ and $\downarrow$ spins.\\
 For $N=2$ sites this corresponds to:
@@ -134,13 +139,13 @@ For $N=2$ sites this corresponds to:
 &\ket{\uparrow \uparrow} = \ket{11}\\
 \end{align*}
 Furthermore it is necessary to determine the action of the Hamiltonian on the basis states.\\
-The TFIM Hamiltonian consists of two different parts $ \mathcal{H} = \mathcal{H}_0 + \mathcal{H}_1$.
+The TFIM Hamiltonian consists of two different parts:
 \begin{align}
 \label{eq:5}
 \mathcal{H}_0 &= -J \sum\limits_{i}\sigma_i^z\sigma_{i+1}^z\\
 \mathcal{H}_1 &= -h \sum\limits_i^{}\sigma_i^{x}
 \end{align}
-Where $\sigma_i$ are Pauli matrices , whose action on the basis states is defined as follows:
+Where the $\sigma_i$ are Pauli matrices , whose action on the basis states is defined as follows:
 \begin{align*}
 \sigma^z \ket{\uparrow} &= 
 \begin{pmatrix}
@@ -199,31 +204,31 @@ Where $\sigma_i$ are Pauli matrices , whose action on the basis states is define
 \end{pmatrix} = \ket{\uparrow}
 \end{align*}
 That generalizes straightforwardly to the many-body basis: $\sigma_i^z
-\ket{\dotso \uparrow_{i+1} \downarrow_i \dotso} = - \ket{\dotso \uparrow_{i+1} \downarrow_i\dotso} $ Then H is applied to every basis state, in order to set up the matrix.\\The resulting matrix is sparse, that is it contains mostly zeros and we can save a lot of memory by only saving the nonzero elements.\\
-As one can see, applying H$_z$ to a basis state always yields the same state, thus H$_z$ is diagonal in this basis.\\
-For the 3 site chain, H$_z$ acts the following way on a state:
+\ket{\dotso \uparrow_{i+1} \downarrow_i \dotso} = - \ket{\dotso \uparrow_{i+1} \downarrow_i\dotso} $ Then $\mathcal{H}$ is applied to every basis state, in order to set up the matrix.\\The resulting matrix is sparse, that is it contains mostly zeros and we can save a lot of memory by only saving the nonzero elements.\\
+As one can see, applying $\mathcal{H}_0$ to a basis state always yields the same state, thus $\mathcal{H}_0$ is diagonal in this basis.\\
+For the 3 site chain, $\mathcal{H}_0$ acts the following way on a state:
 \begin{align*}
-H_z \ket{\uparrow \downarrow \uparrow} = -J(\sigma_0\sigma_1 + \sigma_1\sigma_2) \ket{\uparrow \downarrow \uparrow} = -J(-\ket{\uparrow \downarrow \uparrow} - \ket{\uparrow \downarrow \uparrow}) = 2J \ket{\uparrow \downarrow \uparrow}
+\mathcal{H}_0 \ket{\uparrow \downarrow \uparrow} = -J(\sigma_0\sigma_1 + \sigma_1\sigma_2) \ket{\uparrow \downarrow \uparrow} = -J(-\ket{\uparrow \downarrow \uparrow} - \ket{\uparrow \downarrow \uparrow}) = 2J \ket{\uparrow \downarrow \uparrow}
 \end{align*}
 As one can see, one gets a + sign if two neighboring spins point in the same direction and a minus sign if they do not. Then one has to simply count the number of plus and the number of minus signs and subtract them.
-If the application of H$_z$ returns a nonzero state, we store it in a list, together with its multiple.\\
-The application of H$_x$ is not quite as simple. $\sigma_i^x$ flips the i'th spin, this can be accomplished with the exclusive or.
+If the application of $\mathcal{H}_0$ returns a nonzero state, we store it in a list, together with its multiple.\\
+The application of $\mathcal{H}_1$  is not quite as simple. $\sigma_i^x$ flips the i'th spin, this can be accomplished with the exclusive or.
 \begin{align*}
 \sigma_0^x \ket{101} = \ket{001} XOR \ket{101} = \ket{100}
 \end{align*}
 To give an example:
 \begin{align*}
-H_x \ket{001} &= -h(\sigma_0 + \sigma_1 + \sigma_2)\ket{001} \\
+\mathcal{H}_1 \ket{001} &= -h(\sigma_0 + \sigma_1 + \sigma_2)\ket{001} \\
 &= -h(\ket{001}XOR \ket{001} + \ket{010}XOR \ket{001} + \ket{100}XOR \ket{001})\\
 &= -h(\ket{000} +\ket{011} +\ket{101}) = -h(\ket{0} + \ket{3} +\ket{5})
 \end{align*}
 In the last step we have converted the binary number into its integer
 representation, in order to find out which state was returned, this is
 a simplified version of the more general method of condensing the
-information of  string in a single number and then searching for the
+information of a string in a single number, called hashing and then searching for the
 position of that number in the list of all basis states \cite{Zhang}.\\
 Besides the integer representation, one can also use hash tables, binary search or look up tables. Which of those methods is best depends on the model and its symmetries.\\
-Like before, we only save the position of the nonzero elements.Unlike H$_z$, H$_{x}$ is not diagonal, therefore we need to save both the column index, as well as the row index.\\
+Like before, we only save the position of the nonzero elements.Unlike $\mathcal{H}_0$, $\mathcal{H}_1$ is not diagonal, therefore we need to save both the column index, as well as the row index.\\
 We take the column index to be the state H was applied to and as row
 index the resulting states. In addition to that one has to store the value of h.\\
 Finally one has to to combine both matrices, which can then be
@@ -244,10 +249,53 @@ H =
 \end{pmatrix}
 \end{equation*}
 
+\subsubsection{2D Model}
+The 2D case is not quite as simple as the 1D case, because one has to
+consider the geometry of the model.\\
+The transverse field part of the hamiltonian gets done the same way as
+\begin{equation}
+\label{eq:25}
+\mathcal{H}_1 = \sum\limits_i \sigma_i^x
+\end{equation}
+in the 1D case, because it acts on every spin, irrespective of
+their neighbors.\\
+On the other hand, one needs to consider the shape of the lattice for
+the diagonal part, because it acts on neighboring sites. Thus the sum
+needs to run over all bonds.
+\begin{equation}
+\label{eq:26}
+\mathcal{H}_0 = \sum\limits_{\langle i,j \rangle} \sigma_i^z \sigma_j^z
+\end{equation}
+One can still use the same many body basis, but one needs to label the
+states according to some convention \cite{Sandvik}. We consider a rectangular lattice
+with $N = L_x \times L_y$ sites. Then a site can be labeled as $i =
+x_i + y_iL_x$, where $(x,y)$ are the coordinates of the site, as
+depicted in Figure \eqref{fig:1}.\\
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[darkstyle/.style={circle,draw,fill=gray!40,minimum size=20}]
+  \foreach \x in {0,1,2}
+    \foreach \y in {0,1,2} 
+       {\pgfmathtruncatemacro{\label}{\x - 3 *  \y +6}
+       \node [darkstyle]  (\x\y) at (1.5*\x,1.5*\y) {\label};} 
+
+  \foreach \x in {0,1,2}
+    \foreach \y [count=\yi] in {0,1}  
+      \draw (\x\y)--(\x\yi) (\y\x)--(\yi\x) ;
+
+\end{tikzpicture}
+\caption[]{\label{fig:1} site indices for the $3 \times 3$ square lattice}
+\end{figure}
+As for the $1D$ case, $\mathcal{H}$ is applied on every state and the
+state, as well as $h$ and the resulting state get stored.\\
+
+
+
 \subsection{Lanczos}
 In order to find the eigenvalues of a N-dimensional Hamiltonian, one
 has to find the roots to the characteristic polynomial of degree
-N.Closed form solutions only exist for N$\leq4$ and for higher degrees
+$N$. Closed form solutions only exist for $ N\leq 4$ and for higher degrees
 finding the roots is quite tricky.\\
 Instead, one should find a unitary transformation that diagonalizes
 the Hamiltonian:
@@ -264,7 +312,7 @@ quite small.\\
 If the ground state eigenvalue and eigenvector and low-lying excited
 states are sufficent, then powerful iterative diagonalization
 procedures, like the Lanczos algorithm, exist.\\
-Those Algorithms are all examples of the conceptually quite simple
+Those algorithms are all examples of the conceptually quite simple
 power method \cite{Noack},
 whereby one repeatedly applies the Hamiltonian to a random initial
 state $\ket{v_0}$, which then converges towards the eigenvector of the
@@ -273,7 +321,7 @@ corresponding greatest (absolute) eigenvalue.
 \ket{v_{n+1}} &= \frac{H \ket{v_n}}{\| H \ket{v_n} \|} =\frac{H^{n+1} \ket{v_0}}{\| H^{n+1} \ket{v_0} \|}  \qquad r_0 \in \mathbb{C}\\
 \theta_n &= \frac{\braket{v_n|H|v_n}}{\braket{v_n|v_n}}
 \end{align*}
-Where $\theta_n$ converges towards the eigenvalue $\lambda_n$. The
+Where $\theta_n$ converges towards the largest eigenvalue $\lambda$. The
 subspace generated in the power method
  span\{$\ket{v},H \ket{v}, H^2 \ket{v}, \dotsc,H^n \ket{v}$\} 
 is called the n'th Krylov space and forms the basis for many other
@@ -287,7 +335,8 @@ in  triadiagonal form, which can then be diagonalized much easier \cite{Fehske}.
   $\ket{\phi_0}$, that is normalized\\
  $\|\phi_0\| = 1$
 \item\label{item:2} apply H to this state
-\item\label{item:3} orthogonalize these states against each other to
+\item\label{item:3} orthogonalize these states with all previously
+  generated states, in order to
   obtain a basis of the Krylov space, the matrix is tridiagonal in this basis
 \item\label{item:4} go to 2 using the newly generated state, or end the
   recursion when the stoping criterion $\braket{\phi_{n+1}|\phi_{n+1}}
@@ -317,9 +366,10 @@ T_n =
 The eigenvalues of T$_n$ converge to the eigenvalues of H if n is
 large enough and typically 100 recursions are enough to come close to
 machine precision for the ground state. Therefore one has to
-diagonalize T$_n$, using for example the QR algorithm, which is a much
+diagonalize T$_n$, using for example the QR algorithm \cite{Francis1,Francis2}, which is a much
 easier task than directly diagonalizing H.\\
-Now that one has the eigenvalues and eigenvectors $\ket{\chi}$ of
+Now that one has the eigenvalues and eigenvectors $\ket{\chi}$, with
+components $\chi_j$, of
 T$_n$ one can calculate the eigenvectors $\ket{\psi}$ of the original
 hamiltonian H in the following way:
 \begin{equation}
@@ -335,7 +385,7 @@ limitation of the Lanczos method, which can be remedied by
 reorthogonalizing all basis vectors as for example in the block-Lanczos
 method, but one has to store all vectors in memory instead of just two
 as described above. Furthermore there exist heuristic schemes like
-Cullum-Willoughby, but if one is only interested in a handfull of low
+Cullum-Willoughby \cite{Cullum2,Cullum}, but if one is only interested in a handfull of low
 lying states, then the Lanczos method is often the preferred method of
 choice \cite{Noack}.\\
 An additional drawback is that it is impossible to resolve
@@ -373,11 +423,19 @@ partition function can be written as:
   \right\rangle} \sum\limits_{l = 0}^{\infty} \frac{K^l}{l!}(\sigma_i
   \sigma_j )^l
 \end{align}
-We can now express $(\sigma_i \sigma_j)^l$ graphically as an l-fold
-bond between neighboring sites, thus one can write the partition
-function in terms of graphs up to some maximum size \cite{Rigol,Series}.\\
+We can now express $(\sigma_i \sigma_j)^l$ graphically as an $l$-fold
+bond between neighboring sites \eqref{fig:2}, thus one can write the partition
+function in terms of graphs up to some maximum size
+\cite{Rigol,Series}.\\
+Equation \eqref{eq:11} implies, that it will only converge for high
+temperatures, in other words $\beta$ must be greater or equal to $J$ \cite{Rigol}.\\ 
 
-\includegraphics[scale=0.5]{multigraph_eth.png}
+\begin{figure}[htbp]
+\centerline{\includegraphics[scale = 0.5]{series_multigraph.png}}
+\caption[]{\label{fig:2} we write the expansion in terms of the left
+  hand side (LHS), by collapsing multiple bonds into single bonds}
+\end{figure}
+
 \subsection{Low-Temperature Expansion}
 For systems close to their groundstate, i.e., for $\beta \to \infty$
 we can write the partition function as:
@@ -389,79 +447,86 @@ we can write the partition function as:
 where E$_0$ ist the groundstate. If there exists some energy
 $\epsilon$, such that $m_n \epsilon = E_n - E_0$ , with $m_n \in
 \mathbb{N}$, then one can write any thermodynamic property as a power
-series in $e^{-\beta \epsilon}$.This can then be represented
-graphically in terms of  graphs/clusters, just like for the HTE \cite{Rigol,Series}.
+series in $e^{-\beta \epsilon}$. This can then be represented
+graphically in terms of  graphs/clusters, just like for the HTE
+\cite{Rigol,Series} and as with the HTE, the LTE does not converge at
+any temperature but only for low temperatures.
 
 \subsection{Linked Cluster Expansion}
-The idea behind the linked cluster expansion, LCE from now on, is to
+The idea behind the linked cluster expansion (LCE) is to
 express any extensive property, in the thermodynamic limit, as a sum
-over all clusters c that can be embedded in the lattice
+over all clusters $c$ that can be embedded in the lattice
 \cite{Rigol}.\\
-
-\includegraphics[scale=0.5]{site_based_rigol.png}
-
-The extensive property P(c) can be expressed by all contributions of
-clusters that can be embedded in the cluster c.\\
-see khatami\\
+\begin{figure}[htbp]
+\centerline{\includegraphics[scale=0.5]{site_based_rigol.png}}
+\caption[]{\label{fig:3} Some clusters that can be embedded on the
+  square lattice. Clusters 3 and 5 are related by point-group symmetry and are topologically the same as cluster 4.}
+\end{figure}\\
+The extensive property $P(c)$ can be expressed by all contributions of
+clusters that can be embedded in the cluster $c$.\\
 \begin{equation}
 \label{eq:9}
 P(c) = W_P(c) + \sum\limits_{s \subset c} W_P(s)
 \end{equation}
-Where $W_P(c)$ is called the weight of a cluster c.
+Where $W_P(c)$ is called the weight of a cluster $c$.
 This can be rewritten as:
 \begin{equation}
 \label{eq:4}
 W_P(c) = P(c) - \sum\limits_{s \subset c} W_P(s)
 \end{equation}
-The sum runs over all subclusters s of c, that is each subcluster s is
-included the number of times it fits inside the cluster c, e.g. the
-two site chain contains two times the single site.\\
-One can then calculate P/N in the thermodynamic limit by summing up
+The sum runs over all subclusters $s$ of $c$, that is each subcluster $s$ is
+included the number of times it fits inside the cluster $c$ (Figure \ref{fig:sub}).\\
+\begin{figure}[htbp]
+\centerline{\includegraphics[scale = 0.5]{subclusters_melko.png}}
+\caption[]{\label{fig:sub} The rectangular subclusters of a $2 \times 3$ cluster}
+\end{figure}
+\\
+One can then calculate $P/N$ in the thermodynamic limit by summing up
 all weights \cite{Rigol}.
 \begin{equation}
 \label{eq:3}
 P(\mathcal{L})/N = \sum\limits_c L(c) \times W_P(c)
 \end{equation}
-Here L(c) is the number of possible embeddings per site for a cluster
-c.\\
-pictures\\
+Here $L(c)$ is the number of possible embeddings per site for a cluster
+$c$.\\
 Due to the recursive definition of $W_P(c)$ contributions from
-subclusters get canceled out, thereby canceling boundary and finite-size effects.\\
-A particularly nice fact about the LCE is the sum converges for
+subclusters get canceled out, thereby accounting for boundary and finite-size effects.\\
+A particularly nice fact about the LCE is that the sum converges for
 different cluster geometries, as long as the subclusters can be
 described in the same way. Thus one can choose the
 building blocks that best fit the model one tries to solve. Possible building blocks for the square
 lattice include the site,bond, square or n
 $\times$ m rectangles based expansion and site, bond, or triangle
 based expansion for the triangular lattice \cite{Rigol,Kallin}.\\
-Pictures\\
 The general procedure for the LCE is to generate all clusters up to
 some size, calculate their weights according to \eqref{eq:4} and then combine those
 measurements in line with \eqref{eq:3}.\\
-P(c) can be calculated by any suitable method like perturbation theory
-or numerically by exact diagonalization, as in this paper, or by e.g. the
+$P(c)$ can be calculated by any suitable method like perturbation theory
+or numerically by exact diagonalization, as in this paper, or by the
 density matrix renormalization group (DMRG), therefore justifying the name Numerically Linked Cluster
 Expansion (NLCE). Furthermore we work with the canonical ensemble, but
-other ensembles also apply.
+other ensembles can also be used.\\
 \begin{equation}
 \label{eq:6}
-P(c) = \frac{Tr \left(\hat P(c) e^{-\beta \hat H_c} \right)}{Tr
+P(c) = \frac{ \text{Tr} \left(\hat P(c) e^{-\beta \hat H_c} \right)}{ \text{Tr}
   \left(e^{-\beta \hat H_c} \right)}
 \end{equation}
+The NLCE enables one to work at any temperature, unlike the HTE and
+the LTE, as long as the complete spectrum of a cluster is found.
 \subsection{Connected Clusters}
 The name linked cluster expansion comes from the fact that only
 connected or linked cluster have to be considered, because the weight of two disconnected clusters is zero. This can be considered as a generalization of the
 inclusion-exclusion principle, that states that $|A \cup B|$ is $|A|
 + |B| - |A \cap B|$, just as the number of elements in
 the intersection of two disconnected sets is zero \cite{Melko}.\\
-More explicitly, any extensive quantity P(c), for two disconnected
-clusters c$_1$ and c$_2$, can be written by the sum of its parts:
-\begin{equation}
+More explicitly, any extensive quantity $P(c)$, for two disconnected
+clusters $c_1$ and $c_2$, can be written by the sum of its parts:
+\begin{align}
 \label{eq:7}
-P(c) = P(c_1) + P(c_2)
-\end{equation}
-But c$_1$, c$_2$ and their respective subclusters are both
-subclusters of c, thus the weight of two disconnected clusters is zero
+P(c) = P(c_1) + P(c_2), \qquad \text{where} \quad c = c_1 \cap c_2
+\end{align}
+But $c_1$, $c_2$ and their respective subclusters are both
+subclusters of $c$, thus the weight of two disconnected clusters is zero
 \cite{Rigol}.
 \begin{align}
 \label{eq:8}
@@ -473,7 +538,7 @@ W_P(c) &= P(c) - \sum\limits_{s \subset c} W_P(s)\\
 &= P(c) - P(c_1) -P(c_2) = 0
 \end{align}
 
-\subsection{edfsdf}
+\subsection{NLCE based on rectangles}
 The generation of all clusters and subclusters up to some size is, in
 general, a computationally expensive task, that can be the
 computational bottleneck when trying to calculate, e.g. groundstate
@@ -482,37 +547,27 @@ The generation of all clusters can be simplified by considering their
 symmetry groups and topology. If the Hamiltonian preserves the underlying symmetry of the lattice,
 then clusters related by point-group symmetries have the same weight
 and can be grouped together. Furthermore even if two clusters are not
-related by a point group symmetry they still might be described by the
-same Hamiltonian if the share the same topology (see picture). Thus
+related by a point-group symmetry they still might be described by the
+same Hamiltonian if the share the same topology (Figure \ref{fig:3}). Thus
 one only has to diagonalize clusters that do not share the same
 symmetry, are the same topologically, thereby reducing the amount of
 clusters that must be diagonalized quite drastically \cite{Rigol}.
-But even with the use of symmetries and topology one is often limited to
-to cluster sizes that are smaller than the maximal cluster size that
-can be diagonalized.\\
+But even with the use of symmetries and topology, there are still
+often too many clusters to enumerate, thus one can not use the full
+potential of the cluster solver.\\
 This issue can be sidestep by using an expansion based on $n \times m$
 rectangles instead of the more familiar site or bond based
-expansion. This is possible, since every bond- or site-based cluster
+expansion for embedding on the square lattice. This is possible, since every bond- or site-based cluster
 can be assigned to a unique rectangle. This significantly reduces the
 number of sites needed to self-consistently define the sum and
-generating all rectangles up to some order $\mathcal{O}$ becomes a
+generating all rectangles up to some order $l$ becomes a
 trivial task that can be accomplished by a simple nested
-loop \cite{Kallin}. Furthermore L(c) can either be 1 if $n=m$ or 2 if $n
+loop \cite{Kallin}. Furthermore $L(c)$ can either be $1$ if $n=m$ or $2$ if $n
 \neq m$.\\
 \\
-The rectangle based NLCE is particularly suited for the calculation of the
-Renyi entanglement entropy \eqref{eq:16} for any $\alpha$, unlike
-quantum monte carlo (QMC) and series expansion. Furthermore it allows one
-to separate the corner contributions from the contributions due to a
-straight cut, which is also not possible with QMC \cite{Kallin,Melko}.\\
-\begin{equation}
-\label{eq:16}
-S_{\alpha}(A) = \frac{1}{1-\alpha} logTr(\rho^{\alpha}_A)
-\end{equation}
-
 To get a better grasp of the method, the $2 \times 2$ square lattice
-is calculated explicitly. Here we consider $ n \times m$ rectangles separate from
-$m \times n$ rectangles, thus L(c) is 1 for every rectangle.
+is done explicitly. Here we consider $ n \times m$ rectangles separate from
+$m \times n$ rectangles, thus $L(c) = 1$ for every rectangle.
 \begin{align*}
 W(1,1) &= P(1,1)\\
 W(1,2) &= P(1,2) - 2W(1,1) = P(1,2) -2 P(1,1)\\
@@ -523,27 +578,43 @@ W(2,2) &= P(2,2) -2 W(2,1) -2 W(1,2) -4 W(1,1)\\
 &= P(2,2) -2 P(2,1) - 2 P(1,2) + 4 P(1,1)
 \end{align*}
 Then by summing up all clusters:
-\begin{align}
+\begin{align*}
 \label{eq:17}
 P(\mathcal{L}/(2 \times 2) &=\sum\limits_c L(c) W_P(c) = \sum\limits_c
                       W_P(c)\\
  &= P(2,2) - P(2,1) - P(1,2) + P(1,1)
-\end{align}
-
+\end{align*}
+\\
 For the 1d chain, $P(\mathcal{L})/N$ simplifies to:
 \begin{equation}
 \label{eq:20}
 P(\mathcal{L})/N = P(N) - P(N-1), \qquad N>1
 \end{equation}
-Explicit calculations for the 2d rectangles, with $N,M \geq 2$, hint at the fact that
+Explicit calculations for the $N \times M$ rectangles, with $N,M \geq 2$, hint at the fact that
 \eqref{eq:3} might take the form:
 \begin{equation}
 \label{eq:21}
 P(\mathcal{L})/(N \times M) = P(N,M) - P(N-1,M) - P(N,M-1) +
 P(N-1,M-1)
 \end{equation}
-This has been shown to work for all rectangles up to the $6 \times 6$
-rectangle, but a general proof for any N and M is still missing.
+This has been shown to work for $N,M \leq 6$, but a general proof for
+arbitrary $N$ and $M$ is still missing.\\
+The rectangle based NLCE is particularly suited for the calculation of the
+Renyi entanglement entropy \eqref{eq:16} for any $\alpha$, unlike
+quantum monte carlo (QMC) and series expansion. Additionally it allows one
+to separate the corner contributions from the contributions due to a
+straight cut, which is also not possible with QMC \cite{Kallin,Melko}.\\
+\begin{equation}
+\label{eq:16}
+S_{\alpha}(A) = \frac{1}{1-\alpha} \text{logTr}(\rho^{\alpha}_A)
+\end{equation}
+For $\alpha = 1$ we recover the more familiar von Neumann entanglement
+entropy:
+\begin{equation}
+\label{eq:27}
+S(A) = -\text{Tr}(\rho_A \text{log} \rho_A)
+\end{equation}
+
 \section{Analysis}
 \subsection{1D TFIM}
 The 1D TFIM can be solved exactly \cite{Pfeuty}. The ground state
@@ -564,7 +635,7 @@ M_z =
 \end{cases}
 \end{equation}
 
-SPARSITY!
+
 
 \section{conclusion}
 hgkg 
