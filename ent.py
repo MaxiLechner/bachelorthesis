@@ -1,13 +1,60 @@
 import numpy as np
 from ED import *
+from ED_2D import *
 
+lst = np.linspace(0,2,100)
+
+def densitymatrix(n,m,h):
+	phi = ED(n+m,h)[1]
+	Mc = np.resize(phi,(2**n,2**m))
+	if n >= m:
+		return np.dot(Mc.conj().T,Mc)
+	else:
+		return np.dot(Mc,Mc.conj().T)
+
+def renyientropy(alpha,n,m,h):
+	eigenvalues = np.linalg.eigvalsh(densitymatrix(n,m,h))
+	if alpha==1:
+		von_Neumann = 0
+		for i in eigenvalues:
+			von_Neumann += i * np.log(i)
+		return von_Neumann
+	else:
+		trace = 0
+		for i in eigenvalues:
+			trace += i
+		return (1/(1-alpha) * np.log(trace))
+
+for i in lst:
+	print renyientropy(1,3,3,i)
+
+
+
+def line_entropy(alpha,N,h):
+	#N: number of sites
+	a = []
+	for i in range((N-1)):
+		a.append(i+1)
+	b = list(reversed(a))
+	s = 0
+	for i in range(len(a)):
+		s += renyientropy(alpha,b[i],a[i],h)
+	return s
+
+
+
+
+
+'''
 def densitymatrix(x_a,y_a,x_b,y_b,h):
 	#x_a: size of system a in x direction
 	#y_a: size of system a in y direction
 	#...
 	phi = ED((x_a*y_a)+(x_b*y_b),h)[1]
 	Mc = np.resize(phi,(2**(x_a*y_a),2**(x_b*y_b)))
-	'''
+	
+
+
 	s = (2**m,2**(N-m))
 	p = np.zeros(s)
 	
@@ -16,7 +63,9 @@ def densitymatrix(x_a,y_a,x_b,y_b,h):
 			for k in range(2**(N-m)):
 				p[j,k] = phi[i]
 				print phi[i], j, k, '####', p[j,k]
-	'''
+	
+
+
 	if (x_a*y_a)>=(x_b*y_b):
 		return np.dot(Mc.conj().T,Mc)
 	else:
@@ -30,13 +79,14 @@ def densitymatrix_sitebased(n,m,h):
 	#x_a: size of system a in x direction
 	#y_a: size of system a in y direction
 	#...
-	phi = ED(n+m,h)[1]
+	phi = ED_2D(n,m,h)[1]
 	Mc = np.resize(phi,(2**n,2**m))
 	if n >= m:
 		return np.dot(Mc.conj().T,Mc)
 	else:
 		return np.dot(Mc,Mc.conj().T)
 #print densitymatrix_sitebased(1,1,2)
+
 
 def renyientropy(alpha,x_a,y_a,x_b,y_b,h):
 	eigenvalues = np.linalg.eigvalsh(densitymatrix(x_a,y_a,x_b,y_b,h))
@@ -117,11 +167,4 @@ def cornerentropy(alpha,n,m,h):
 		s1 += renyientropy_sitebased(alpha,c[i][0],c[i][1],h)
 		s2 += renyientropy_sitebased(alpha,d[i][0],d[i][1],h)
 	return (s1 + s2)
-
-n=3
-m=3
-h=2
-a=1
-#print cornerentropy(a,n,m,h) 
-print sum_line_x(a,n,m,h) 
-print sum_line_y(a,n,m,h)
+'''
